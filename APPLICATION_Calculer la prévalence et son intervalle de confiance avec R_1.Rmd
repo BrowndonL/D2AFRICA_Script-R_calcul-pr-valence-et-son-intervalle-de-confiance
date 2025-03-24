@@ -1,0 +1,118 @@
+---
+title: "APPLICATION PRATIQUE : Calculer la prévalence et son intervalle de confiance avec R "
+output: html_notebook
+---
+
+
+
+
+## APPLICATION PRATIQUE : Calculer la prévalence et son intervalle de confiance avec R 
+
+
+# Calculer la Prévalence avec R
+
+# Commentaire : La prévalence est une mesure en santé publique qui indique la proportion d'individus malades dans une population à un moment donné.
+
+```{r}
+# Définition des variables
+cas <- 150
+population <- 1000
+
+# Calcul de la prévalence
+prevalence <- cas / population
+prevalence  # Résultat : 0.15 (15%)
+``` 
+
+# Calculer les Intervalles de Confiance
+
+# Commnentaire : Une seule valeur de prévalence n’est pas suffisante, car il y a une incertitude liée à l’échantillonnage. Un intervalle de confiance donne une fourchette où la vraie prévalence se situe avec 95% de probabilité
+
+```{r}
+library(binom)
+binom.confint(150, 1000, conf.level = 0.95, methods = "exact") # Pour l’intervalle exact (Clopper-Pearson) "n<50"
+binom.confint(150, 1000, conf.level = 0.95, methods = "asymptotic") # Pour l’intervalle de Wald "n≥500"
+binom.confint(150, 1000, conf.level = 0.95, methods = "wilson") # Pour l’intervalle de Wilson "50≤n<500"
+
+```
+
+
+```{r}
+# Nous allons encadré la prévalence précédemment obtenue avec la méthode de  Wald 
+
+result <- binom.confint(cas, population, conf.level = 0.95, methods = "asymptotic")
+# Prévalence: 15% (12,79 - 17,21), cela signifie que dans 95% des cas, la vraie prévalence est dans cet intervalle.
+```
+
+
+# Visualisation de l'intervalle de confiance selon la méthode de  Wald
+
+# Commentaire : Une représentation graphique permet de mieux comprendre l’incertitude associée à l’estimation.
+
+```{r}
+# Je charge la bibliothèque ggplot
+library(ggplot2)
+
+# Je crée un data frame pour ggplot2
+df <- data.frame(
+  Methode = "Wald", 
+  Prevalence = prevalence * 100,  # Conversion en pourcentage
+  Lower = result$lower * 100,  # Limite inférieure de l'IC
+  Upper = result$upper * 100   # Limite supérieure de l'IC
+)
+
+# Visualisation avec ggplot2
+ggplot(df, aes(x = Methode, y = Prevalence)) +
+  geom_point(color = "#0072B2", size = 5) +  # Point bleu pour la prévalence
+  geom_errorbar(aes(ymin = Lower, ymax = Upper), width = 0.2, color = "red", size = 1.2) +  # Barre d'erreur en rouge
+  labs(
+    title = "Prévalence avec Intervalle de Confiance à 95% (Méthode de Wald)",
+    subtitle = paste("Cas :", cas, "| Population :", population, "| Prévalence estimée :", round(prevalence * 100, 2), "%"),
+    y = "Prévalence (%)",
+    x = "Méthode d'estimation"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+    plot.subtitle = element_text(size = 12, hjust = 0.5),
+    axis.title.x = element_text(face = "bold"),
+    axis.title.y = element_text(face = "bold")
+  )
+
+```
+
+# Conclusion
+
+# Le script en R permet de :
+
+- Calculer la prévalence d’une maladie dans une population ;
+- Évaluer l’incertitude en générant un intervalle de confiance à 95% ;
+- Comparer différentes méthodes (Clopper-Pearson, Wald, Wilson);
+- Visualiser les résultats de manière intuitive avec un graphique ggplot2.
+
+# Application en santé publique :
+
+- Utilisé pour suivre les épidémies et les tendances sanitaires;
+- Permet aux décideurs de prendre des mesures adaptées en fonction de la précision des estimations.
+
+# "Envie d’essayer par vous-même ? Téléchargez le script complet via le lien en description !"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
